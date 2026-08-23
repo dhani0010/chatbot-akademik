@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Log Chatbot</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+    <h1>Log Chatbot</h1>
+
+    <a href="/dashboard"
+       class="btn btn-secondary mb-3">
+        Dashboard
+    </a>
+
+    <div class="card shadow">
+
+        <div class="card-body">
+
+            <table class="table table-bordered">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Nomor WA</th>
+                        <th>Pesan</th>
+                        <th>Balasan</th>
+                        <th>Waktu</th>
+                        <th>Aksi</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                <% if(data.length > 0){ %>
+
+                    <% data.forEach(cl=>{ %>
+
+                    <tr>
+
+                        <td><%= cl.id %></td>
+
+                        <td><%= cl.nomor_wa %></td>
+
+                        <td><%= cl.pesan %></td>
+
+                        <td><%= cl.balasan %></td>
+
+                        <td>
+                            <%= new Date(cl.waktu)
+                            .toLocaleString('id-ID') %>
+                        </td>
+
+                        <td>
+
+                            <a href="/chatbot-log/hapus/<%= cl.id %>"
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Hapus log?')">
+
+                                Hapus
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    <% }) %>
+
+                <% } else { %>
+
+                    <tr>
+
+                        <td colspan="6"
+                            class="text-center">
+
+                            Belum ada log chatbot
+
+                        </td>
+
+                    </tr>
+
+                <% } %>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

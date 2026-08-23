@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Edit Sidang</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="container mt-4">
+
+    <h1>Edit Sidang</h1>
+
+    <a href="/sidang" class="btn btn-secondary mb-3">
+        Kembali
+    </a>
+
+    <form action="/sidang/edit/<%= sidang.id_sidang %>" method="POST">
+
+        <div class="mb-3">
+
+            <label>Mahasiswa</label>
+
+            <select name="id_mahasiswa" class="form-control">
+
+                <% mahasiswa.forEach(m=>{ %>
+
+                <option
+                    value="<%= m.id_mahasiswa %>"
+                    <%= sidang.id_mahasiswa == m.id_mahasiswa ? 'selected' : '' %>>
+
+                    <%= m.npm %> -
+                    <%= m.nama %>
+
+                </option>
+
+                <% }) %>
+
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Pembimbing</label>
+
+            <select name="pembimbing" class="form-control">
+
+                <% dosen.forEach(d=>{ %>
+
+                    <option value="<%= d.id_dosen %>">
+
+                        <%= d.nama %>
+
+                    </option>
+
+                <% }) %>
+
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Penguji 1</label>
+
+            <select name="penguji_1" class="form-control">
+
+                <% dosen.forEach(d=>{ %>
+
+                <option
+                    value="<%= d.id_dosen %>"
+                    <%= sidang.penguji_1 == d.id_dosen ? 'selected' : '' %>>
+
+                    <%= d.nama %>
+
+                </option>
+
+                <% }) %>
+
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Penguji 2</label>
+
+            <select name="penguji_2" class="form-control">
+
+                <% dosen.forEach(d=>{ %>
+
+                <option
+                    value="<%= d.id_dosen %>"
+                    <%= sidang.penguji_2 == d.id_dosen ? 'selected' : '' %>>
+
+                    <%= d.nama %>
+
+                </option>
+
+                <% }) %>
+
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Penguji 3</label>
+
+            <select name="penguji_3" class="form-control">
+
+                <% dosen.forEach(d=>{ %>
+
+                <option
+                    value="<%= d.id_dosen %>"
+                    <%= sidang.penguji_3 == d.id_dosen ? 'selected' : '' %>>
+
+                    <%= d.nama %>
+
+                </option>
+
+                <% }) %>
+
+            </select>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Tanggal</label>
+
+            <input
+                type="date"
+                name="tanggal"
+                class="form-control"
+                value="<%= sidang.tanggal ? sidang.tanggal.toISOString().split('T')[0] : '' %>">
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Jam</label>
+
+            <input
+                type="time"
+                name="jam"
+                class="form-control"
+                value="<%= sidang.jam %>">
+
+        </div>
+
+        <div class="mb-3">
+
+            <label>Ruang</label>
+
+            <input
+                type="text"
+                name="ruang"
+                class="form-control"
+                value="<%= sidang.ruang %>">
+
+        </div>
+
+        <button class="btn btn-primary">
+
+            Update
+
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

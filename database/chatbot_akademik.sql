@@ -1,0 +1,46 @@
+CREATE DATABASE chatbot_akademik;
+
+USE chatbot_akademik;
+
+CREATE TABLE admin(
+id INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(50),
+password VARCHAR(255)
+);
+
+CREATE TABLE mahasiswa(
+id INT AUTO_INCREMENT PRIMARY KEY,
+npm VARCHAR(20),
+nama VARCHAR(100),
+kelas VARCHAR(20),
+no_hp VARCHAR(20)
+);
+
+CREATE TABLE jadwal(
+id INT AUTO_INCREMENT PRIMARY KEY,
+mata_kuliah VARCHAR(100),
+hari VARCHAR(20),
+jam VARCHAR(20),
+ruangan VARCHAR(20)
+);
+
+CREATE TABLE pengumuman(
+id INT AUTO_INCREMENT PRIMARY KEY,
+judul VARCHAR(100),
+isi TEXT,
+tanggal DATE
+);
+
+CREATE TABLE seminar(
+id INT AUTO_INCREMENT PRIMARY KEY,
+tanggal DATE,
+jam VARCHAR(20),
+ruangan VARCHAR(50)
+);
+
+CREATE TABLE sidang(
+id INT AUTO_INCREMENT PRIMARY KEY,
+tanggal DATE,
+jam VARCHAR(20),
+ruangan VARCHAR(50)
+);
