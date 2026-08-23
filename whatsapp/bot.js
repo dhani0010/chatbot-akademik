@@ -8,16 +8,18 @@ const path = require('path');
 
 const client = new Client({
     authStrategy: new LocalAuth({
-        clientId: 'chatbot-akademik',
-        dataPath: path.join(__dirname, '../.wwebjs_auth')
+        dataPath: './.wwebjs_auth'
     }),
-
     puppeteer: {
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
         headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage'
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--no-first-run',
+            '--no-zygote'
         ]
     }
 });
