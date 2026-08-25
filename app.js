@@ -32,8 +32,6 @@ const faqRoutes = require('./routes/faqRoutes');
 const mataKuliahRoutes = require('./routes/mataKuliahRoutes');
 const kpRoutes = require('./routes/kpRoutes');
 const kknRoutes = require('./routes/kknRoutes');
-const seminarRoutes = require('./routes/seminarRoutes');
-const sidangRoutes = require('./routes/sidangRoutes');
 const kalenderRoutes = require('./routes/kalenderRoutes');
 
 const auth = require('./middleware/auth');
@@ -56,8 +54,6 @@ app.use('/faq', faqRoutes);
 app.use('/matakuliah', mataKuliahRoutes);
 app.use('/kp', kpRoutes);
 app.use('/kkn', kknRoutes);
-app.use('/seminar', seminarRoutes);
-app.use('/sidang', sidangRoutes);
 app.use('/kalender', kalenderRoutes);
 
 const PORT = process.env.PORT || 3000;
