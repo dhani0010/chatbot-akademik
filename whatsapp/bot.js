@@ -104,12 +104,6 @@ client.on('change_state', (state) => {
     );
 });
 
-client.on('authenticated', () => {
-    console.log(
-        'WhatsApp authenticated'
-    );
-});
-
 client.on('ready', async () => {
 
     console.log('================================');
@@ -156,76 +150,94 @@ client.on('disconnected', (reason) => {
     );
 });
 
-client.on('authenticated', async () => {
+client.on('authenticated', () => {
     console.log('WhatsApp authenticated');
+});
 
-    try {
-        const state = await client.getState();
+client.on('ready', () => {
+    console.log('================================');
+    console.log('WHATSAPP READY');
+    console.log('NOMOR:', client.info?.wid?.user);
+    console.log('================================');
+});
 
-        console.log(
-            'WhatsApp State:',
-            state
-        );
+client.on('change_state', (state) => {
+    console.log('WHATSAPP CHANGE STATE:', state);
+});
 
-    } catch (error) {
+client.on('disconnected', (reason) => {
+    console.error('WHATSAPP DISCONNECTED:', reason);
+});
 
-        console.error(
-            'Gagal mendapatkan WhatsApp state:',
-            error
-        );
-
-    }
+client.on('auth_failure', (msg) => {
+    console.error('WHATSAPP AUTH FAILURE:', msg);
 });
 
 client.on('message', async (message) => {
 
-    console.log('================================');
     console.log('PESAN MASUK:', message.body);
-    console.log('DARI:', message.from);
-    console.log('================================');
-
-    if (message.fromMe) {
-        return;
-    }
-
-    if (!message.body) {
-        return;
-    }
-
-    await chatbotService.handleMessage(
-        client,
-        message
-    );
-
-});
-
-setTimeout(async () => {
 
     try {
 
-        const state =
-            await client.getState();
-
-        console.log(
-            'CHECK 15 DETIK - STATE:',
-            state
-        );
-
-        console.log(
-            'CHECK 15 DETIK - INFO:',
-            client.info
+        await chatbotService.handleMessage(
+            client,
+            message
         );
 
     } catch (error) {
 
         console.error(
-            'CHECK 15 DETIK ERROR:',
+            'ERROR MESSAGE HANDLER:',
             error
         );
 
     }
 
-}, 15000);
+});
+
+let whatsappReady = false;
+
+client.on('ready', () => {
+    whatsappReady = true;
+
+    console.log('================================');
+    console.log('WHATSAPP READY');
+    console.log('Nomor:', client.info?.wid?.user);
+    console.log('================================');
+});
+
+client.on('disconnected', (reason) => {
+    whatsappReady = false;
+
+    console.error('WHATSAPP DISCONNECTED:', reason);
+});
+
+setInterval(async () => {
+
+    if (!whatsappReady || !client.info) {
+        console.log('CHECK WHATSAPP: BELUM READY');
+        return;
+    }
+
+    try {
+
+        const state = await client.getState();
+
+        console.log(
+            'CHECK WHATSAPP - STATE:',
+            state
+        );
+
+    } catch (error) {
+
+        console.error(
+            'CHECK WHATSAPP ERROR:',
+            error.message
+        );
+
+    }
+
+}, 30000);
 
 client.initialize()
     .then(() => {
