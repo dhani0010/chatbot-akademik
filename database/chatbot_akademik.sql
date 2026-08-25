@@ -30,17 +30,3 @@ judul VARCHAR(100),
 isi TEXT,
 tanggal DATE
 );
-
-CREATE TABLE seminar(
-id INT AUTO_INCREMENT PRIMARY KEY,
-tanggal DATE,
-jam VARCHAR(20),
-ruangan VARCHAR(50)
-);
-
-CREATE TABLE sidang(
-id INT AUTO_INCREMENT PRIMARY KEY,
-tanggal DATE,
-jam VARCHAR(20),
-ruangan VARCHAR(50)
-);
