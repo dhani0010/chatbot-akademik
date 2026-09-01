@@ -293,105 +293,243 @@ exports.handleMessage = async (
 
 
         /*
-        ==========================
-        JADWAL PER HARI
-        ==========================
-        */
+==========================
+JADWAL PER HARI / KELAS / SESI
+==========================
+*/
 
-        if (
-            text.startsWith('jadwal ')
-        ) {
+if (text.startsWith('jadwal ')) {
 
-            const hari =
-                text
-                    .replace(
-                        'jadwal',
-                        ''
-                    )
-                    .trim();
+    const parameter = text
+        .replace('jadwal ', '')
+        .trim();
 
-            if (!hari) {
+    if (!parameter) {
 
-                return replyLog(
-                    message,
-                    'Silakan masukkan hari.\n\nContoh:\njadwal senin'
-                );
+        return replyLog(
+            message,
+            'Silakan masukkan hari.\n\n' +
+            'Contoh:\n' +
+            'jadwal senin\n' +
+            'jadwal senin 2-1 pagi\n' +
+            'jadwal senin 2-1 sore'
+        );
 
-            }
+    }
 
-            db.query(
-                `
-                SELECT
-                    j.*,
-                    mk.nama_mk,
-                    d.nama AS dosen
-                FROM jadwal j
-                LEFT JOIN mata_kuliah mk
-                    ON j.id_mk = mk.id_mk
-                LEFT JOIN dosen d
-                    ON j.id_dosen = d.id_dosen
-                WHERE LOWER(j.hari) = ?
-                ORDER BY j.jam_mulai
-                `,
-                [
-                    hari.toLowerCase()
-                ],
-                (err, data) => {
+    const bagian = parameter.split(/\s+/);
 
-                    if (err) {
+    const hari = bagian[0].toLowerCase();
 
-                        console.log(
-                            'Error jadwal:',
-                            err
-                        );
+    /*
+    ==========================
+    VALIDASI HARI
+    ==========================
+    */
 
-                        return replyLog(
-                            message,
-                            'Terjadi kesalahan sistem.'
-                        );
+    const hariValid = [
+        'senin',
+        'selasa',
+        'rabu',
+        'kamis',
+        'jumat',
+        'sabtu'
+    ];
 
-                    }
+    if (!hariValid.includes(hari)) {
 
-                    if (
-                        !data ||
-                        data.length === 0
-                    ) {
+        return replyLog(
+            message,
+            `Hari "${hari}" tidak valid.`
+        );
 
-                        return replyLog(
-                            message,
-                            'Jadwal tidak ditemukan.'
-                        );
+    }
 
-                    }
+    /*
+    ==========================
+    JIKA HANYA:
+    jadwal senin
+    ==========================
+    */
 
-                    let balasan =
-                        '📚 *JADWAL KULIAH*\n\n';
+    if (bagian.length === 1) {
 
-                    data.forEach(
-                        (j, index) => {
+        db.query(
+            `
+            SELECT
+                j.*,
+                mk.nama_mk,
+                d.nama AS dosen
+            FROM jadwal j
+            LEFT JOIN mata_kuliah mk
+                ON j.id_mk = mk.id_mk
+            LEFT JOIN dosen d
+                ON j.id_dosen = d.id_dosen
+            WHERE LOWER(TRIM(j.hari)) = ?
+            ORDER BY j.jam_mulai
+            `,
+            [hari],
 
-                            balasan +=
-                                `${index + 1}. ${j.nama_mk}\n` +
-                                `👨‍🏫 Dosen : ${j.dosen || '-'}\n` +
-                                `🏫 Kelas : ${j.kelas || '-'}\n` +
-                                `📅 Hari : ${j.hari || '-'}\n` +
-                                `🕒 Jam : ${j.jam_mulai || '-'} - ${j.jam_selesai || '-'}\n` +
-                                `📍 Ruangan : ${j.ruangan || '-'}\n\n`;
+            (err, data) => {
 
-                        }
+                if (err) {
+
+                    console.log(
+                        'Error jadwal:',
+                        err
                     );
 
                     return replyLog(
                         message,
-                        balasan
+                        'Terjadi kesalahan sistem.'
                     );
 
                 }
+
+                if (!data || data.length === 0) {
+
+                    return replyLog(
+                        message,
+                        `Jadwal hari ${hari} tidak ditemukan.`
+                    );
+
+                }
+
+                let balasan =
+                    `📚 *JADWAL ${hari.toUpperCase()}*\n\n`;
+
+                data.forEach((j, index) => {
+
+                    balasan +=
+                        `${index + 1}. ${j.nama_mk || '-'}\n` +
+                        `👨‍🏫 Dosen : ${j.dosen || '-'}\n` +
+                        `🏫 Kelas : ${j.kelas || '-'}\n` +
+                        `🕒 Jam : ${j.jam_mulai || '-'} - ${j.jam_selesai || '-'}\n` +
+                        `📍 Ruangan : ${j.ruangan || '-'}\n\n`;
+
+                });
+
+                return replyLog(
+                    message,
+                    balasan
+                );
+
+            }
+        );
+
+        return;
+    }
+
+    /*
+    ==========================
+    FORMAT:
+    jadwal senin 2-1 pagi
+    ==========================
+    */
+
+    if (bagian.length === 3) {
+
+        const nomorKelas = bagian[1];
+        const sesi = bagian[2];
+
+        if (
+            sesi !== 'pagi' &&
+            sesi !== 'sore'
+        ) {
+
+            return replyLog(
+                message,
+                'Sesi kelas tidak valid.\n\n' +
+                'Gunakan:\n' +
+                'jadwal senin 2-1 pagi\n' +
+                'jadwal senin 2-1 sore'
             );
 
-            return;
-
         }
+
+        const kelas = `${nomorKelas} ${sesi}`;
+
+        db.query(
+            `
+            SELECT
+                j.*,
+                mk.nama_mk,
+                d.nama AS dosen
+            FROM jadwal j
+            LEFT JOIN mata_kuliah mk
+                ON j.id_mk = mk.id_mk
+            LEFT JOIN dosen d
+                ON j.id_dosen = d.id_dosen
+            WHERE LOWER(TRIM(j.hari)) = ?
+              AND LOWER(TRIM(j.kelas)) = ?
+            ORDER BY j.jam_mulai
+            `,
+            [
+                hari,
+                kelas
+            ],
+
+            (err, data) => {
+
+                if (err) {
+
+                    console.log(
+                        'Error jadwal:',
+                        err
+                    );
+
+                    return replyLog(
+                        message,
+                        'Terjadi kesalahan sistem.'
+                    );
+
+                }
+
+                if (!data || data.length === 0) {
+
+                    return replyLog(
+                        message,
+                        `Jadwal ${hari} kelas ${kelas} tidak ditemukan.`
+                    );
+
+                }
+
+                let balasan =
+                    `📚 *JADWAL ${hari.toUpperCase()}*\n` +
+                    `🏫 *KELAS ${kelas.toUpperCase()}*\n\n`;
+
+                data.forEach((j, index) => {
+
+                    balasan +=
+                        `${index + 1}. ${j.nama_mk || '-'}\n` +
+                        `👨‍🏫 Dosen : ${j.dosen || '-'}\n` +
+                        `📅 Hari : ${j.hari || '-'}\n` +
+                        `🕒 Jam : ${j.jam_mulai || '-'} - ${j.jam_selesai || '-'}\n` +
+                        `📍 Ruangan : ${j.ruangan || '-'}\n\n`;
+
+                });
+
+                return replyLog(
+                    message,
+                    balasan
+                );
+
+            }
+        );
+
+        return;
+    }
+
+    return replyLog(
+        message,
+        'Format perintah tidak sesuai.\n\n' +
+        'Contoh:\n' +
+        'jadwal senin\n' +
+        'jadwal senin 2-1 pagi\n' +
+        'jadwal senin 2-1 sore'
+    );
+
+}
 
 
         /*
@@ -1383,14 +1521,14 @@ ${tanggal}`;
             db.query(
                 `
                 SELECT
-                    k.*,
-                    m.nama,
-                    d.nama AS dosen
-                FROM kp k
+                    kp.*,
+                    m.nama AS nama_mahasiswa,
+                    d.nama AS nama_dosen
+                FROM kerja_praktik kp
                 LEFT JOIN mahasiswa m
-                    ON k.id_mahasiswa = m.id_mahasiswa
+                    ON kp.id_mahasiswa = m.id_mahasiswa
                 LEFT JOIN dosen d
-                    ON k.dosen_pembimbing = d.id_dosen
+                    ON kp.dosen_pembimbing = d.id_dosen
                 WHERE m.npm = ?
                 `,
                 [
@@ -1426,51 +1564,23 @@ ${tanggal}`;
 
                     const k = data[0];
 
-                    let mulai = '-';
-                    let selesai = '-';
-
-                    if (k.mulai) {
-
-                        mulai =
-                            new Date(
-                                k.mulai
-                            )
-                            .toLocaleDateString(
-                                'id-ID'
-                            );
-
-                    }
-
-                    if (k.selesai) {
-
-                        selesai =
-                            new Date(
-                                k.selesai
-                            )
-                            .toLocaleDateString(
-                                'id-ID'
-                            );
-
-                    }
+                    
 
                     const balasan =
 
 `🏢 *KERJA PRAKTEK*
 
 Nama :
-${k.nama || '-'}
+${k.nama_mahasiswa || '-'}
 
-Perusahaan :
-${k.perusahaan || '-'}
+Judul :
+${k.judul || '-'}
 
 Pembimbing :
-${k.dosen || '-'}
+${k.nama_dosen || '-'}
 
-Mulai :
-${mulai}
-
-Selesai :
-${selesai}`;
+Tahun :
+${k.tahun || '-'}`;
 
                     return replyLog(
                         message,

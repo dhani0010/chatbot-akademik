@@ -11,17 +11,23 @@ const client = new Client({
         dataPath: './.wwebjs_auth'
     }),
     puppeteer: {
-        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
-        headless: true,
-        args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-gpu',
-            '--no-first-run',
-            '--no-zygote'
-        ]
-    }
+    executablePath:
+        process.env.PUPPETEER_EXECUTABLE_PATH ||
+        (process.platform === 'win32'
+            ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+            : '/usr/bin/chromium'),
+
+    headless: true,
+
+    args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote'
+    ]
+}
 });
 
 async function kirimPengumuman(judul, isi, tanggal, jam) {
@@ -136,20 +142,6 @@ client.on('ready', async () => {
 
 });
 
-client.on('auth_failure', (msg) => {
-    console.error(
-        'WHATSAPP AUTH FAILURE:',
-        msg
-    );
-});
-
-client.on('disconnected', (reason) => {
-    console.error(
-        'WHATSAPP DISCONNECTED:',
-        reason
-    );
-});
-
 client.on('authenticated', () => {
     console.log('WhatsApp authenticated');
 });
@@ -197,27 +189,16 @@ client.on('message', async (message) => {
 
 let whatsappReady = false;
 
-client.on('ready', () => {
-    whatsappReady = true;
-
-    console.log('================================');
-    console.log('WHATSAPP READY');
-    console.log('Nomor:', client.info?.wid?.user);
-    console.log('================================');
-});
-
-client.on('disconnected', (reason) => {
-    whatsappReady = false;
-
-    console.error('WHATSAPP DISCONNECTED:', reason);
-});
-
 setInterval(async () => {
 
     if (!whatsappReady || !client.info) {
-        console.log('CHECK WHATSAPP: BELUM READY');
-        return;
-    }
+    console.log(
+        'CHECK WHATSAPP: BELUM READY',
+        '| whatsappReady =', whatsappReady,
+        '| client.info =', !!client.info
+    );
+    return;
+}
 
     try {
 
