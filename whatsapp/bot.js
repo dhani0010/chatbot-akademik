@@ -8,26 +8,26 @@ const path = require('path');
 
 const client = new Client({
     authStrategy: new LocalAuth({
-        dataPath: './.wwebjs_auth'
+        dataPath: '/app/.wwebjs_auth'
     }),
+
     puppeteer: {
-    executablePath:
-        process.env.PUPPETEER_EXECUTABLE_PATH ||
-        (process.platform === 'win32'
-            ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-            : '/usr/bin/chromium'),
+        headless: true,
 
-    headless: true,
+        executablePath:
+            process.env.PUPPETEER_EXECUTABLE_PATH ||
+            '/usr/bin/chromium',
 
-    args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote'
-    ]
-}
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process'
+        ]
+    }
 });
 
 async function kirimPengumuman(judul, isi, tanggal, jam) {
@@ -220,18 +220,17 @@ setInterval(async () => {
 
 }, 30000);
 
+console.log('MEMULAI WHATSAPP...');
+
 client.initialize()
     .then(() => {
-        console.log(
-            'WhatsApp client berhasil diinisialisasi'
-        );
+        console.log('WhatsApp initialize selesai');
     })
     .catch((error) => {
         console.error(
-            'GAGAL INITIALIZE WHATSAPP:'
+            'WHATSAPP INITIALIZE ERROR:',
+            error
         );
-
-        console.error(error);
     });
 
 module.exports = {
