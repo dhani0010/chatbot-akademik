@@ -191,19 +191,21 @@ let initializingWhatsApp = false;
 
 async function initializeWhatsApp() {
 
-    if (initializingWhatsApp || whatsappReady) {
+    if (whatsappReady || initializingWhatsApp) {
         return;
     }
 
     initializingWhatsApp = true;
 
+    console.log('================================');
+    console.log('MEMULAI WHATSAPP...');
+    console.log('================================');
+
     try {
 
-        console.log('================================');
-        console.log('INITIALIZING WHATSAPP...');
-        console.log('================================');
-
         await client.initialize();
+
+        console.log('INITIALIZE WHATSAPP SELESAI');
 
     } catch (error) {
 
@@ -212,8 +214,6 @@ async function initializeWhatsApp() {
             error.message
         );
 
-        whatsappReady = false;
-
     } finally {
 
         initializingWhatsApp = false;
@@ -221,19 +221,15 @@ async function initializeWhatsApp() {
     }
 }
 
-setInterval(async () => {
+client.on('ready', () => {
 
-    if (whatsappReady) {
-        return;
-    }
+    whatsappReady = true;
 
-    console.log(
-        'WHATSAPP BELUM READY - MENCOBA INITIALIZE ULANG...'
-    );
+    console.log('================================');
+    console.log('WHATSAPP READY');
+    console.log('================================');
 
-    await initializeWhatsApp();
-
-}, 60000);
+});
 
 console.log('MEMULAI WHATSAPP...');
 
