@@ -18,14 +18,15 @@ const client = new Client({
             process.env.PUPPETEER_EXECUTABLE_PATH ||
             '/usr/bin/chromium',
 
+        protocolTimeout: 300000,
+
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--no-first-run',
-            '--no-zygote',
-            '--single-process'
+            '--no-zygote'
         ]
     }
 });
