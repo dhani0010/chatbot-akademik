@@ -8,17 +8,15 @@ const path = require('path');
 
 const client = new Client({
     authStrategy: new LocalAuth({
+        clientId: 'chatbot-akademik',
         dataPath: '/app/.wwebjs_auth'
     }),
 
     puppeteer: {
+        executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
         headless: true,
 
-        executablePath:
-            process.env.PUPPETEER_EXECUTABLE_PATH ||
-            '/usr/bin/chromium',
-
-        protocolTimeout: 300000,
+        protocolTimeout: 120000,
 
         args: [
             '--no-sandbox',
@@ -189,37 +187,53 @@ client.on('message', async (message) => {
 });
 
 let whatsappReady = false;
+let initializingWhatsApp = false;
 
-setInterval(async () => {
+async function initializeWhatsApp() {
 
-    if (!whatsappReady || !client.info) {
-    console.log(
-        'CHECK WHATSAPP: BELUM READY',
-        '| whatsappReady =', whatsappReady,
-        '| client.info =', !!client.info
-    );
-    return;
-}
+    if (initializingWhatsApp || whatsappReady) {
+        return;
+    }
+
+    initializingWhatsApp = true;
 
     try {
 
-        const state = await client.getState();
+        console.log('================================');
+        console.log('INITIALIZING WHATSAPP...');
+        console.log('================================');
 
-        console.log(
-            'CHECK WHATSAPP - STATE:',
-            state
-        );
+        await client.initialize();
 
     } catch (error) {
 
         console.error(
-            'CHECK WHATSAPP ERROR:',
+            'GAGAL INITIALIZE WHATSAPP:',
             error.message
         );
 
+        whatsappReady = false;
+
+    } finally {
+
+        initializingWhatsApp = false;
+
+    }
+}
+
+setInterval(async () => {
+
+    if (whatsappReady) {
+        return;
     }
 
-}, 30000);
+    console.log(
+        'WHATSAPP BELUM READY - MENCOBA INITIALIZE ULANG...'
+    );
+
+    await initializeWhatsApp();
+
+}, 60000);
 
 console.log('MEMULAI WHATSAPP...');
 
